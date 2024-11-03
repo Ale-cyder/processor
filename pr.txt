@@ -1,0 +1,52 @@
+input
+pop ax
+input
+pop bx
+input
+pop cx
+push bx
+push bx
+mul
+push 4
+push ax
+push cx
+mul
+mul
+push -1
+mul
+add
+pop dx
+push dx
+push 0
+ja next
+push dx
+sqrt
+pop dx
+push 2
+push ax
+mul
+push -1
+push bx
+mul
+push dx
+add
+div
+out
+push 2
+push ax
+mul
+push -1
+push bx
+mul
+push -1
+push dx
+mul
+add
+div
+out
+next:
+hlt
+
+
+
+
