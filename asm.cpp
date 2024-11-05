@@ -8,7 +8,7 @@ int main (int argc, char* argv[])
     if (argc == 2)
     {
         char* argv_1 = argv[1];
-        if (assembl(argv_1))
+        if (assembl (argv_1))
             return 1;
         else 
        {
@@ -19,21 +19,22 @@ int main (int argc, char* argv[])
         printf ("err file name\n");
 }
 
-int strcicmp(char const *a, char const *b)
+int strcicmp (char const *a, char const *b)
 {
     for (;; a++, b++) {
-        int d = tolower((unsigned char)*a) - tolower((unsigned char)*b);
+        int d = tolower ((unsigned char) * a) - tolower ((unsigned char)*b);
         if (d != 0 || !*a)
             return d;
     }
 }
+
 int assembl (char* argv_1)
 {
     FILE *fp = fopen (argv_1, "r");
 
     if (fp == 0)
     {
-        fprintf (stderr, "oshibka");
+        fprintf (stderr, "oshibka otkretia faila\n");
         return 1;
     }
     
@@ -47,11 +48,12 @@ int assembl (char* argv_1)
         fprintf (stderr, "err mark\n");
         return 1;
     }
+
     rewind (fp);
 
     #define CMD_CMD(NAME, COD, ARG, ...) if (!strcicmp (order, # NAME)) \
                                          { code[ip++] = COD; if (ARG) \
-                                         {if (get_arg (code, &ip, fp, mark, number_of_mark)) {printf ("error\n"); \
+                                         {if (get_arg (code, &ip, fp, mark, number_of_mark)) {printf ("error arg on comand %s\n", # NAME); \
                                          return 1;}}} else 
    
     int c = fscanf (fp, "%s", order);
@@ -74,20 +76,42 @@ int assembl (char* argv_1)
     #undef CMD_CMD
 
     fclose (fp);
-
-    FILE* file_cod = fopen ("cod.txt", "w");
-    if (!file_cod)
-        return 2;
     
-    code[0] = ip - 1;
-    int y = fwrite (code, sizeof(code[0]), ip, file_cod);
-    //fprintf (file_cod, "%i ", ip);
+    int MAGIC_NUMBER = 70;
+    char file_write_name[MAGIC_NUMBER] = {};
 
-    //for (int y = 0; y < ip; y++)
-    //    fprintf (file_cod, "%i ", code[y]);
-    fclose (file_cod);
+    for (int i = 0; i < (MAGIC_NUMBER - 3); i++)
+    {
+        file_write_name[i] = argv_1[i];
+
+        if (argv_1[i] == '.')
+        {
+            i++;
+            file_write_name[i++] = 'b';
+            file_write_name[i++] = 'i';
+            file_write_name[i++] = 'n';
+            file_write_name[i++] = '\0';
+
+            printf ("name file with cod is:\n");
+            puts (file_write_name);
+
+            FILE* file_cod = fopen (file_write_name, "w");
+
+            if (!file_cod)
+                return 2;
+            
+            code[0] = ip - 1;
+
+            int y = fwrite (code, sizeof (code[0]), ip, file_cod);
+
+            fclose (file_cod);
+            break;
+        }
+    }
+    
     return 0;
 }
+
 int get_arg (int* code, int* ip, FILE* fp, black* mark, int number_of_mark) 
 {
     int start_ip = (*ip)++;
@@ -95,9 +119,10 @@ int get_arg (int* code, int* ip, FILE* fp, black* mark, int number_of_mark)
     char name_mark[ORDER_LENGTH] = {};
     int name_mark_length = 0;
     int register_num = 0, number = 0, contr = 0;
+    int sign_multiplier = 1;
 
     c = getc (fp);
-    int sign_multiplier = 1;
+
     while ((c != EOF) && (c != '\n'))
     {
         if ((c <= 'z') && (c >= 'a'))
@@ -105,7 +130,9 @@ int get_arg (int* code, int* ip, FILE* fp, black* mark, int number_of_mark)
             while ((c <= 'z') && (c >= 'a'))
             {
                 name_mark[name_mark_length++] = c;
+
                 c = getc (fp);
+
                 if (name_mark_length >= ORDER_LENGTH - 1)
                       return 1;
             }
@@ -127,20 +154,21 @@ int get_arg (int* code, int* ip, FILE* fp, black* mark, int number_of_mark)
                         code[start_ip] = code[start_ip] | 8;
                         code[(*ip)++] = (mark + i)->adr;
                     
-                        if (!(code[start_ip]) & (255-8))
+                        if (((code[start_ip]) & (255 - 8))) // mark with other instructions is an error 
                         {
                             return 1;
                         }
                         return 0;
                     }
                 } 
+                printf ("error arg %s\n", name_mark);
+                return 1;
             }
             continue;
         }
         else if (c == '[')
         {
             contr = 1;
-            printf ("contr = 1;\n");
         }
         else if (c == ']')
         {
@@ -151,12 +179,13 @@ int get_arg (int* code, int* ip, FILE* fp, black* mark, int number_of_mark)
         {
             
             code[start_ip] = code[start_ip] | 4; // will be used number
+
             number = c - '0';
+
             while (((c = getc (fp)) < '9' ) && (c >= '0'))
             {
                 number = number * 10 + (c - '0');
             }
-            printf ("sign = %i\n", sign_multiplier);
             code[*ip] += number * sign_multiplier;
          
             continue;
@@ -166,7 +195,6 @@ int get_arg (int* code, int* ip, FILE* fp, black* mark, int number_of_mark)
         else if (c == '+') {sign_multiplier = 1;}
         else 
         {
-            fprintf (stderr, "else er\n");
             return 1;
         }
         c = getc(fp);
@@ -197,19 +225,18 @@ int get_mark (black* mark, FILE* fp)
         int num = 0, y = 0, reg = 0, a = 0, chet = 0;
         while (((c = getc (fp)) != '\n') && (c != EOF))
         {
-            if (a < ORDER_LENGTH)
-                mark[number_of_mark].name[a++] = c;
-
+    
             if (c == ':')
             {
-                c = 0; 
+                chet = -1;
                 
-                mark[number_of_mark].name[--a] = '\0';
+                mark[number_of_mark].name[a] = '\0';
                 (mark[number_of_mark++]).adr = coun;
-                break;
             }
-            else if (c == 'x')
+            else if ((c <= 'z') && (c >= 'a'))
             {
+                if (a < ORDER_LENGTH)
+                    mark[number_of_mark].name[a++] = c;
                 if (y)
                 {
                     reg = 1;
@@ -228,8 +255,9 @@ int get_mark (black* mark, FILE* fp)
                     chet = 1;
                 }
             }
+            printf ("%c",c);
         }
-
+        printf ("\ncoun =%i  %i  %i %i \n", coun, num, reg, chet);
         coun = coun + 1 + num + reg + chet;
     }
 

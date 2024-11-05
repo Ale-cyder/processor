@@ -10,22 +10,34 @@ int main (int argc, char* argv[])
     {
         proc proces = {};
         if (get_cod (&proces, argv[1]))
-            return 1;
-        ERR PAN_answer = NO_ERR;
-        if ((PAN_answer = ran (proces)) == NO_END_PROG)
-        {
-            printf ("no end comand, accomplishment cod finished\n");
-        else if (PAN_answer)
-            printf ("ERROR\n");
-            return 1;
-        }
+            printf ("error read cod\n");
         else 
         {
-            printf ("programm succussful complited\n");
-            return 0;
+            ERR PAN_answer = NO_ERR;
+
+            if ((PAN_answer = ran (proces)) == NO_END_PROG)
+            {
+                printf ("no end comand, accomplishment cod finished\n");
+            }
+            else if (PAN_answer)
+            {
+                printf ("ERROR\n");
+            }
+            else 
+            {
+                printf ("programm succussful complited\n");
+            }
         }
+        if (&proces.stk)
+            des_troy (&proces.stk);
+        if (proces.arr_cod)
+            free (proces.arr_cod);
     }
-    else printf ("NOT file\n");
+    else 
+    {
+        printf ("NOT file\n");
+        return 1;
+    }
 }
 
 ERR get_cod (proc* proces, char* argv_0)
@@ -33,8 +45,9 @@ ERR get_cod (proc* proces, char* argv_0)
     if (argv_0)
     {
         FILE* fp = fopen (argv_0, "r");
-        printf ("fp = %p\n", fp);
+    
         puts (argv_0);
+
         if (!fp)
         {
             return ERR_OPEN;
@@ -43,6 +56,7 @@ ERR get_cod (proc* proces, char* argv_0)
         {
             return ERR_VERS;
         }
+
         fread (&(proces->number_cmd), sizeof(int), 1, fp);
       
         proces->arr_cod = (int*) calloc (proces->number_cmd + 1, sizeof (int));
@@ -66,7 +80,7 @@ ERR get_cod (proc* proces, char* argv_0)
 ERR ran (proc proces)
 {
    
-    if (initiation    (10, &proces.stk))
+    if (initiation    (5, &proces.stk))
     {
         return ERR_INIT_STACK;
     }
@@ -89,22 +103,24 @@ int get_data (proc* proces, int* res)
 {
     int arg_type = proces->arr_cod[proces->ip++];
     int result = 0;
-    if (arg_type & 4)
+    if (arg_type & 4) // bit numer
     {
-        result += proces->arr_cod[proces->ip++];
+        result += (proces->arr_cod[proces->ip++] * 10000);
     }
-    if (arg_type & 1)
+    
+    if (arg_type & 1) // regist bit
     {
-        *res *= proces->arr_cod[proces->ip];
+        *res = proces->arr_cod[proces->ip];
         result += proces->arr_reg[proces->arr_cod[proces->ip++]];
-
     }
-    if (arg_type & 2)
+    
+    if (arg_type & 2) // ram bit
     {
-        *res = (-1) * result;
-        result = proces->arr_ram[result]; 
+        *res = (int)((-1) * result / 10000);
+        result = proces->arr_ram[(int)(result / 10000)]; 
     }
-    if (arg_type & 8)
+    
+    if (arg_type & 8) // mark bit
     {
         return proces->arr_cod[proces->ip++];
     }
