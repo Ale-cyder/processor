@@ -33,7 +33,7 @@ err_enum initiation (int capacity_, Stack* stk)
        *(unsigned long long int*) ((char*)(stk->data) - size_kanary) = CANARY_NAME; 
        *(unsigned long long int*) ((stk->data) + stk->capacity) = CANARY_NAME;
    )
-    for (int i = stk->size_; i < stk->capacity; i++)
+    for (size_t i = stk->size_; i < stk->capacity; i++)
     {
         stk->data[i] = NOVICHOK; 
     }
@@ -48,7 +48,7 @@ err_enum stack_pop (Stack* stack_pp, stack_elem_type* elem)
     err_enum stack_err_answer = stack_err (stack_pp, __FILE__, __LINE__);
     if (stack_err_answer) 
     {
-        printf ("err i p\n"); // TODO: в лог файл следует писать
+        printf ("err i p\n"); 
         return stack_err_answer;
     }
 
@@ -168,7 +168,7 @@ err_enum realloc_stack (Stack* stack_pp, realock_operation oper_)
 
             stack_pp->capacity = (stack_pp->capacity) * magnification_multiplier;
 
-            for (int i = stack_pp->size_; i < stack_pp->capacity; i++)
+            for (size_t i = stack_pp->size_; i < stack_pp->capacity; i++)
             {
                 stack_pp->data[i] = NOVICHOK;
             }
@@ -176,6 +176,7 @@ err_enum realloc_stack (Stack* stack_pp, realock_operation oper_)
         else
         { 
             fputs ("No the memory for increase stack\n", stderr); // TODO: ошибку обработать
+            return no_memory_to_increase;
         }
     }
     else 
@@ -198,7 +199,7 @@ err_enum realloc_stack (Stack* stack_pp, realock_operation oper_)
 int des_troy (Stack* stk)
 { 
     void* memory_adres = ((char*)stk->data KANAR( - size_kanary)); 
-    if (memory_adres);
+    if (memory_adres)
         free(memory_adres);
     *stk = {};
     return 0;

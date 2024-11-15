@@ -28,9 +28,10 @@ enum err_enum
     err_adr_arr = 2,
     err_size_arr = 3,
     zero_capacity = 4,
-    zero_size = 5 OMMON
-    KANAR (err_kanar_stk = 6) OMMON
-    KANAR(err_kanar_arr = 7)
+    zero_size = 5, 
+    no_memory_to_increase = 6 OMMON
+    KANAR (err_kanar_stk = 7) OMMON
+    KANAR(err_kanar_arr = 8)
     
 };
 

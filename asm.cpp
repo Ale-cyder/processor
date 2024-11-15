@@ -1,21 +1,22 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-#include "asm.h" 
+#include "asm.h"
 
 int main (int argc, char* argv[])
 {
     if (argc == 2)
     {
-        char* argv_1 = argv[1];
-        if (assembl (argv_1))
+        char* argv_1 = argv[1]; // TODO: какой вообще смысл этого присваивания?
+                                //       ты же мог с тем же успехом просто передать argv[1] в assembl
+        if (assembl (argv[1]))
             return 1;
-        else 
-       {
+        else
+        { 
             printf ("All's well that ends well\n");
-       }
+        }
     }
-    else 
+    else
         printf ("err file name\n");
 }
 
@@ -37,11 +38,11 @@ int assembl (char* argv_1)
         fprintf (stderr, "oshibka otkretia faila\n");
         return 1;
     }
-    
-    black mark[10] = {};
-    char order[ORDER_LENGTH] = {}; 
-    int code[1000] = {};
-    int ip = 1, number_of_mark;
+
+    black mark[NUM_MARK] = {};
+    char order[ORDER_LENGTH] = {};
+    int code[ARR_COD] = {};
+    int ip = 1, number_of_mark = 0; 
 
     if ((number_of_mark = get_mark (mark, fp)) < 0)
     {
@@ -54,9 +55,10 @@ int assembl (char* argv_1)
     #define CMD_CMD(NAME, COD, ARG, ...) if (!strcicmp (order, # NAME)) \
                                          { code[ip++] = COD; if (ARG) \
                                          {if (get_arg (code, &ip, fp, mark, number_of_mark)) {printf ("error arg on comand %s\n", # NAME); \
-                                         return 1;}}} else 
-   
+                                         return 1;}}} else
+
     int c = fscanf (fp, "%s", order);
+
     while (c != EOF)
     {
         #include "commands.h"
@@ -71,48 +73,16 @@ int assembl (char* argv_1)
             if (ORDER_LENGTH == o)
                 fprintf (stderr, "Error: %s not the right command\n", order);
         }
-        c = fscanf (fp, "%s\n", order);     
+        c = fscanf (fp, "%s\n", order);
     }
     #undef CMD_CMD
 
     fclose (fp);
-    
-    int MAGIC_NUMBER = 70;
-    char file_write_name[MAGIC_NUMBER] = {};
 
-    for (int i = 0; i < (MAGIC_NUMBER - 3); i++)
-    {
-        file_write_name[i] = argv_1[i];
-
-        if (argv_1[i] == '.')
-        {
-            i++;
-            file_write_name[i++] = 'b';
-            file_write_name[i++] = 'i';
-            file_write_name[i++] = 'n';
-            file_write_name[i++] = '\0';
-
-            printf ("name file with cod is:\n");
-            puts (file_write_name);
-
-            FILE* file_cod = fopen (file_write_name, "w");
-
-            if (!file_cod)
-                return 2;
-            
-            code[0] = ip - 1;
-
-            int y = fwrite (code, sizeof (code[0]), ip, file_cod);
-
-            fclose (file_cod);
-            break;
-        }
-    }
-    
-    return 0;
+    return write_cod (code, ip, argv_1);;
 }
 
-int get_arg (int* code, int* ip, FILE* fp, black* mark, int number_of_mark) 
+int get_arg (int* code, int* ip, FILE* fp, black* mark, int number_of_mark)
 {
     int start_ip = (*ip)++;
     char c = 0;
@@ -142,25 +112,25 @@ int get_arg (int* code, int* ip, FILE* fp, black* mark, int number_of_mark)
                 code[start_ip] = code[start_ip] | 1;
                 register_num = name_mark[0] - 'a'; // probably will use register
             }
-            else 
+            else
             {
                 name_mark[name_mark_length] = '\0';
 
                 for (int i = 0; i < number_of_mark; i++)
                 {
-                    
+
                     if (!strcmp ((mark + i)->name, name_mark))
                     {
                         code[start_ip] = code[start_ip] | 8;
                         code[(*ip)++] = (mark + i)->adr;
-                    
-                        if (((code[start_ip]) & (255 - 8))) // mark with other instructions is an error 
+
+                        if (((code[start_ip]) & (255 - 8))) // mark with other instructions is an error
                         {
                             return 1;
                         }
                         return 0;
                     }
-                } 
+                }
                 printf ("error arg %s\n", name_mark);
                 return 1;
             }
@@ -177,7 +147,7 @@ int get_arg (int* code, int* ip, FILE* fp, black* mark, int number_of_mark)
         }
         else if ((c <= '9') && (c >= '0'))
         {
-            
+
             code[start_ip] = code[start_ip] | 4; // will be used number
 
             number = c - '0';
@@ -187,13 +157,13 @@ int get_arg (int* code, int* ip, FILE* fp, black* mark, int number_of_mark)
                 number = number * 10 + (c - '0');
             }
             code[*ip] += number * sign_multiplier;
-         
+
             continue;
         }
         else if (c == ' ') {}
         else if (c == '-') {sign_multiplier = -1;}
         else if (c == '+') {sign_multiplier = 1;}
-        else 
+        else
         {
             return 1;
         }
@@ -214,52 +184,83 @@ int get_mark (black* mark, FILE* fp)
 {
     size_t coun = 0;
     size_t number_of_mark = 0;
-    char c = 0;
-    
+    char char_get = 0;
+
     char order[ORDER_LENGTH] = {};
 
-    c = 0;
-
-    while (c != EOF)
-    {   
-        int num = 0, y = 0, reg = 0, a = 0, chet = 0;
-        while (((c = getc (fp)) != '\n') && (c != EOF))
+    while (char_get != EOF) // TODO: абсолютно не читаемый алгоритм. Придумай норм названия переменных
+    {
+        int is_num = 0, was_white_space = 0, is_register = 0, a = 0, is_type_bit = 0;
+        while (((char_get = getc (fp)) != '\n') && (char_get != EOF))
         {
-    
-            if (c == ':')
+
+            if (char_get == ':')
             {
-                chet = -1;
-                
+                is_type_bit = -1;
+
                 mark[number_of_mark].name[a] = '\0';
                 (mark[number_of_mark++]).adr = coun;
             }
-            else if ((c <= 'z') && (c >= 'a'))
+            else if (isalpha(char_get)) 
             {
                 if (a < ORDER_LENGTH)
-                    mark[number_of_mark].name[a++] = c;
-                if (y)
+                    mark[number_of_mark].name[a++] = char_get;
+                if (was_white_space)
                 {
-                    reg = 1;
-                    chet = 1;
+                    is_register = 1;
+                    is_type_bit = 1;
                 }
             }
-            else if (c == ' ')
+            else if (char_get == ' ')
             {
-                y = 1;
+                was_white_space = 1;
             }
-            else if ((c <= '9') && (c >= '0'))
+            else if (isdigit (char_get))
             {
-                if (y)
+                if (was_white_space)
                 {
-                    num = 1;
-                    chet = 1;
+                    is_num = 1;
+                    is_type_bit = 1;
                 }
             }
-            printf ("%c",c);
         }
-        printf ("\ncoun =%i  %i  %i %i \n", coun, num, reg, chet);
-        coun = coun + 1 + num + reg + chet;
+        coun = coun + 1 + is_num + is_register + is_type_bit;
     }
 
     return number_of_mark;
+}
+
+int write_cod (int* code, int ip, char* argv_1)
+{
+    int MAGIC_NUMBER = 70;
+    char file_write_name[MAGIC_NUMBER] = {};
+    for (int i = 0; i < (MAGIC_NUMBER - 3); i++) 
+    {
+        file_write_name[i] = argv_1[i];
+
+        if (argv_1[i] == '.')
+        {
+            i++;
+            file_write_name[i++] = 'b';
+            file_write_name[i++] = 'i';
+            file_write_name[i++] = 'n';
+            file_write_name[i++] = '\0';
+
+            printf ("name file with cod is:\n");
+            puts (file_write_name);
+
+            FILE* file_cod = fopen (file_write_name, "w");
+            
+            if (!file_cod)
+                return 2;
+            fwrite (&VErsion, sizeof(long int), 1, file_cod);
+            code[0] = ip - 1;
+
+            int y = fwrite (code, sizeof (code[0]), ip, file_cod);
+
+            fclose (file_cod);
+            return 0;
+        }
+    }
+    return 1;
 }

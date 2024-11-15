@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 #include "proc.h"
 #include "ENUM_COM.h"
@@ -54,6 +55,7 @@ ERR get_cod (proc* proces, char* argv_0)
         }
         if (chec_version (fp))
         {
+            fprintf (fp, "err version\n");
             return ERR_VERS;
         }
 
@@ -128,6 +130,12 @@ int get_data (proc* proces, int* res)
 }
 int chec_version (FILE* fp)
 {
+    long int edentifier = 0;
+    fread (&edentifier, sizeof(VErcion), 1, fp);
+    if (edentifier != VErcion)
+    {
+        return 1;
+    }
     return 0;
 }
 int dump_proc (proc proces, char* comment)

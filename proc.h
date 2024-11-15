@@ -1,12 +1,13 @@
 #ifndef ghjk
 #define ghjk
-#include "../stack/stack__/stack/stack.h"
+#include "stack.h" 
 #define NUM_RAM 64
 #define NUM_REG 8
+#define NUM_EDENTIf 20
 struct proc
 {
     int ip;
-    int number_cmd;   
+    int number_cmd;
     int* arr_cod;
     int arr_reg[NUM_REG];
     int arr_ram[NUM_RAM];
@@ -25,7 +26,7 @@ enum ERR
     NO_END_PROG = 8,
     ERR_INIT_STACK = 9
 };
-
+const long int VErcion = 0x60d15dead;
 int get_data (proc* proces, int* res);
 int dump_proc (proc process, char* comment);
 ERR ran (proc proces);
