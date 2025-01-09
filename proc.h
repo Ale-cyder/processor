@@ -1,9 +1,11 @@
 #ifndef ghjk
 #define ghjk
 #include "stack.h" 
-#define NUM_RAM 64
-#define NUM_REG 8
-#define NUM_EDENTIf 20
+
+const int NUM_RAM = 64;
+const int NUM_REG = 8;
+const long int VErcion = 0x60d15dead; // TODO: rename
+
 struct proc
 {
     int ip;
@@ -13,7 +15,7 @@ struct proc
     int arr_ram[NUM_RAM];
     Stack stk;
 };
-enum ERR
+enum ERR // TODO: не принято капсом называть
 {
     NO_ERR = 0,
     ERR_NAME = 1,
@@ -26,10 +28,12 @@ enum ERR
     NO_END_PROG = 8,
     ERR_INIT_STACK = 9
 };
-const long int VErcion = 0x60d15dead;
+
 int get_data (proc* proces, int* res);
 int dump_proc (proc process, char* comment);
-ERR ran (proc proces);
-ERR get_cod (proc* proces, char* argv_1);
+ERR ran (proc* proces);
+ERR get_cod (proc* proces, const char* argv_1);
 int chec_version (FILE* fp);
+ERR des_troy_proc (proc* proces);
+int print_error (ERR return_mean);
 #endif

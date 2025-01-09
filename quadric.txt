@@ -4,11 +4,11 @@ input
 pop bx
 input
 pop cx
-push ax 
+push ax
 push 0
 jb nexta
 push bx
-push bx         
+push bx
 mul
 push 4
 push ax
@@ -48,17 +48,14 @@ mul
 add
 div
 out
+hlt
 next:
 hlt
 nexta:
-push cx
 push -1
 push bx
 mul
+push cx
 div
 out
 hlt
-
-
-
-

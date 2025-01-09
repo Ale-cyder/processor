@@ -1,3 +1,5 @@
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -11,6 +13,7 @@
 #define OMMON
 #define KANAR(naame) 
 #endif
+
 #ifndef qwertyuiop
 #define qwertyuiop
 typedef int stack_elem_type;

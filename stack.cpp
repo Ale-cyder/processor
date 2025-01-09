@@ -2,10 +2,6 @@
 
 err_enum initiation (int capacity_, Stack* stk) 
 {
-    if  (capacity_ < 1)
-    {
-        return zero_capacity; 
-    }
     if (!stk)
     {
         return err_adr_arr;
@@ -16,10 +12,10 @@ err_enum initiation (int capacity_, Stack* stk)
         capacity_ = Min_Stack_Size;
     }
 
-    size_t varieble_size = capacity_ *  SizStack_elem KANAR(+ (2 * size_kanary)); 
+    int varieble_size = capacity_ *  SizStack_elem KANAR(+ (2 * size_kanary)); 
     
     stk->data = (stack_elem_type*) calloc (varieble_size, 1);
-    
+   
     KANAR ((stk->data) = (stack_elem_type*) ((char*) (stk->data) + size_kanary);) 
     
     
@@ -33,7 +29,7 @@ err_enum initiation (int capacity_, Stack* stk)
        *(unsigned long long int*) ((char*)(stk->data) - size_kanary) = CANARY_NAME; 
        *(unsigned long long int*) ((stk->data) + stk->capacity) = CANARY_NAME;
    )
-    for (size_t i = stk->size_; i < stk->capacity; i++)
+    for (int i = stk->size_; i < stk->capacity; i++)
     {
         stk->data[i] = NOVICHOK; 
     }
@@ -198,9 +194,12 @@ err_enum realloc_stack (Stack* stack_pp, realock_operation oper_)
 
 int des_troy (Stack* stk)
 { 
-    void* memory_adres = ((char*)stk->data KANAR( - size_kanary)); 
+    void* memory_adres = (void*) ((char*)stk->data KANAR( - size_kanary)); 
+    
     if (memory_adres)
-        free(memory_adres);
+        free (memory_adres);
+    else 
+        printf ("something not good happen\n");
     *stk = {};
     return 0;
 }
