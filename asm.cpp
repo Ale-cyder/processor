@@ -137,59 +137,6 @@ int subtit_mark (int number_of_mark_in_code, int number_of_mark_initiation, blac
     return 0;
 }
 
-
-
-
-/*
-int get_mark (black* mark, FILE* fp)
-{
-    int counter = 0; 
-    int number_of_mark = 0;
-
-    char char_get = 0;
-    while (char_get != EOF) // TODO: абсолютно не читаемый алгоритм. Придумай норм названия переменных------------------------------
-    {
-        int is_num = 0, was_white_space = 0, is_register = 0, a = 0, is_type_bit = 0; // TODO: переименовать--------------------
-
-        while (((char_get = getc (fp)) != '\n') && (char_get != EOF))
-        {
-
-            if (char_get == ':')
-            {
-                is_type_bit = -1; // because mark is ===    "name mark": -- it is not written into the code, only the address is remembered
-
-                mark[number_of_mark].name[a] = '\0';
-                (mark[number_of_mark++]).adr = counter;
-            }
-            else if (isalpha(char_get)) 
-            {
-                if (a < ORDER_LENGTH)
-                    mark[number_of_mark].name[a++] = char_get;
-                if (was_white_space)
-                {
-                    is_register = 1;
-                    is_type_bit = 1;
-                }
-            }
-            else if (char_get == ' ')
-            {
-                was_white_space = 1;
-            }
-            else if (isdigit (char_get))
-            {
-                if (was_white_space)
-                {
-                    is_num = 1;
-                    is_type_bit = 1;
-                }
-            }
-        }
-        counter = counter + 1 + is_num + is_register + is_type_bit;
-    }
-
-    return number_of_mark;
-}
-*/
 enm write_code_to_file (int* code, int ip, char* argv_1) 
 {
     const int file_name_length = 70; 
@@ -296,17 +243,14 @@ enm check_and_write_register (const int start_ip, int* code, int* ip, char* get_
 enm get_numer (const int start_ip, int* code, int* ip, FILE* fp)
 {
     const int will_number = 4;
-    int number = 0, sign_multiplier = 1;
+    int number = 0;
     char get_char = 0;
-
-    // if (fscanf (fp, "%[-]", &get_char))
-    //     sign_multiplier = -1;
 
     if (fscanf (fp, "%d", &number) == 0)
         return no_event;
 
     code[start_ip] = code[start_ip] | will_number; 
-    code[(*ip)++] = number * sign_multiplier;
+    code[(*ip)++] = number;
 
     return success;
 }
