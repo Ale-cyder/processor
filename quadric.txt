@@ -1,61 +1,79 @@
-input
-pop ax
-input
-pop bx
-input
-pop cx
-push ax
-push 0
-jb nexta
-push bx
-push bx
-mul
-push 4
-push ax
-push cx
-mul
-mul
-push -1
-mul
-add
-pop dx
-push dx
-push 0
-ja next
-push dx
-sqrt
-pop dx
-push dx
-push 2
-push ax
-mul
-push -1
-push bx
-mul
-push dx
-add
-div
-out
-push 2
-push ax
-mul
-push -1
-push bx
-mul
-push -1
-push dx
-mul
-add
-div
-out
-hlt
-next:
-hlt
-nexta:
-push -1
-push bx
-mul
-push cx
-div
-out
-hlt
+    input
+    pop ax
+
+    input
+    pop bx
+
+    input
+    pop cx
+
+    push ax
+    push 0
+    jb a_coef_is_zer
+
+    push bx
+    push bx
+    mul
+    push 4
+    push ax
+    push cx
+    mul
+    mul
+    push -1
+    mul
+    add
+    pop dx
+
+    push dx
+    push 0
+    ja discr_less_0
+
+    push dx
+    sqrt
+    pop dx
+
+    push dx
+
+    push 2
+    push ax
+    mul
+
+    push -1
+    push bx
+    mul
+
+    push dx
+
+    add
+    div
+
+    out
+
+    push 2
+    push ax
+    mul
+
+    push -1
+    push bx
+    mul
+
+    push -1
+    push dx
+    mul
+
+    add
+    div
+
+    out
+    hlt
+
+discr_less_0:
+    hlt
+a_coef_is_zer:
+    push -1
+    push bx
+    mul
+    push cx
+    div
+    out
+    hlt
